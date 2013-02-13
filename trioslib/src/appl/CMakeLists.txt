@@ -9,7 +9,9 @@ appl/appl_wk.c
 appl/appl_multi.c
 appl/operator.c
 )
+
 ADD_LIBRARY(triosappl ${TRIOS_COLLEC_SRCS} ${TRIOS_APPL_SRCS})
+target_link_libraries(triosappl ${Boost_LIBRARIES} triostree)
 
 INSTALL(TARGETS triosappl
   RUNTIME DESTINATION bin

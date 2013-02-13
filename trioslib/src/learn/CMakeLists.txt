@@ -15,7 +15,7 @@ learn/partition.c
 
 )
 ADD_LIBRARY(trioslearn ${TRIOS_LEARN_SRCS})
-target_link_libraries(trioslearn triosbasic triosio trios_collec triosappl trioscv m)
+target_link_libraries(trioslearn triosbasic triosio trios_collec triosappl trioscv ${Boost_LIBRARIES} triostree m)
 
 
 INSTALL(TARGETS trioslearn

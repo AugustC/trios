@@ -6,6 +6,10 @@ SET(CMAKE_BUILD_TYPE debug)
 
 find_package(OpenCV)
 find_package(OpenMP)
+find_package(Boost 1.45.0 COMPONENTS system date_time filesystem program_options regex signals serialization thread unit_test_framework REQUIRED )
+
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
+ADD_DEFINITIONS( "-DHAS_BOOST" )
 
 SUBDIRS(include src test tools)
 
