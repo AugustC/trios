@@ -17,6 +17,7 @@
 typedef void dTree;
 
 img_t *apply(img_t *img, CvDTree *tr, window_t *win, img_t *mask) {
+    printf("ASDASDASDA\n\n");
     img_t *output = img_create(img->width, img->height, img->nbands, img->pixel_size);
     cv::Mat wpat(1, win_get_wsize(win), CV_32FC1);
     int *offset = offset_create(win_get_wsize(win));

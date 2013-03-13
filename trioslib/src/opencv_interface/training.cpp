@@ -27,8 +27,10 @@ cv::Mat build_samples_from_mtm(mtm_t *mtm) {
         mtm_GX *m = (mtm_GX *) mtm->mtm_data + i;
         for (int j = 0; j < m->fq; j++, k++) {
             for (int l = 0; l < mtm->wsize; l++) {
-                samples.at<float>(k, l) = ((unsigned char *) m->wpat)[l];
+                //printf("%d ", m->wpat[l]);
+                samples.at<float>(k, l) = m->wpat[l];
             }
+            //printf("\n");
         }
     }
     return samples;
@@ -96,7 +98,7 @@ cv::Mat build_classes_from_xpl(xpl_t *xpl) {
 void test_accuracy(CvDTree &tr, cv::Mat samples, cv::Mat labels) {
     cv::Mat wpat(1, samples.cols, CV_32FC1);
     unsigned long right, wrong, mse;
-    unsigned char value, label;
+    int value, label;
     right = wrong = mse = 0;
     for (int i = 0; i < samples.rows; i++) {
         for (int j = 0; j < samples.cols; j++) {
@@ -104,17 +106,17 @@ void test_accuracy(CvDTree &tr, cv::Mat samples, cv::Mat labels) {
         }
 
         CvDTreeNode *node = tr.predict(wpat);
-        value = (int) node->value;
+        value = (int) (node->value + 0.5);
         label = (int) labels.at<float>(i, 0);
         if (value == label) {
             right++;
         } else {
             mse += pow(value - labels.at<float>(i, 0), 2);
             wrong++;
-            /*for (int j = 0; j < samples.cols; j++) {
+            for (int j = 0; j < samples.cols; j++) {
                 printf("%d ", (int) samples.at<float>(i, j));
             }
-            printf("\n");*/
+            printf(" val %d pred %d\n", value, label);
         }
     }
     fprintf(stderr, "Acc %f wrong %lu prop %lu/%lu MSE %lu\n", 1.0 * right/(right + wrong), wrong, right, right + wrong, mse);
@@ -132,8 +134,8 @@ extern "C" void *train_cv_tree(mtm_t *mtm) {
     params.use_surrogates = false;
     params.max_categories = INT_MAX;
     cv::Mat var_type(1, mtm->wsize + 1, CV_8UC1);
-    for (int i = 0; i < mtm->wsize + 1; i++) {
-        var_type.at<unsigned char>(0, i) = CV_VAR_ORDERED;
+    for (int i = 0; i < mtm->wsize+1; i++) {
+        var_type.at<unsigned char>(0, i) = CV_VAR_CATEGORICAL;
     }
     CvDTree *tr_mtm = new CvDTree();
     tr_mtm->pruned_tree_idx = -INT_MAX;

@@ -395,7 +395,7 @@ int mtm_write(char *fname, mtm_t * mtm, window_t * win, apert_t *apt)
 	unsigned int nmtm;
 	int type, wzip, wsize, wsize1, freqsize;
 	int i, j, comp_prob;
-	unsigned char value;
+    int value;
 
 
 #ifdef _DEBUG_
@@ -501,7 +501,7 @@ int mtm_write(char *fname, mtm_t * mtm, window_t * win, apert_t *apt)
 
 		for (i = 0; i < nmtm; i++) {
 			for (j = 0; j < wsize; j++) {
-				value = (unsigned char) table_GX[i].wpat[j];
+                value = table_GX[i].wpat[j];
 				fprintf(fd, "%d ", value);
 			}
             fprintf(fd, "%d %d\n",
