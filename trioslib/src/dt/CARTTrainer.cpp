@@ -10,6 +10,8 @@
 #include <shark/ObjectiveFunctions/Loss/SquaredLoss.h>
 #include <shark/ObjectiveFunctions/Loss/ZeroOneLoss.h>
 
+#include <cstdio>
+
 using namespace shark;
 using namespace std;
 
@@ -106,12 +108,17 @@ void CARTTrainer::train(ModelType& model, const ClassificationDataset& dataset){
     }
 
     model.setSplitMatrix(bestSplitMatrix);*/
+    std::size_t numElements = dataset.numberOfElements();
+    std::size_t inputDimension = dataDimension(dataset.inputs());
     boost::unordered_map<size_t, size_t> cAbove = createCountMatrix(dataset);
-	AttributeTables tables = createAttributeTables(dataset.inputs());
+    AttributeTables tables = createAttributeTables(dataset.inputs());
+    //AttributeSplits splits = createAttributeSplits(dataset.inputs());
 	
-	//create initial split matrix for the fold
-	CARTClassifier<RealVector>::SplitMatrixType splitMatrix = buildTree(tables, dataset, cAbove, 0);
-	model.setSplitMatrix(splitMatrix);
+    //initializeStructuresClassification(cAbove, tables, splits, dataset);
+
+    //create initial split matrix for the fold
+    //CARTClassifier<RealVector>::SplitMatrixType splitMatrix = buildTree(tables, dataset, cAbove, 0);
+    //model.setSplitMatrix(splitMatrix);
 }
 
 
@@ -226,6 +233,9 @@ CARTTrainer::SplitMatrixType CARTTrainer::buildTree(AttributeTables const& table
 			AttributeTable const& table = tables[attributeIndex];
 			boost::unordered_map<size_t, size_t> cTmpAbove = cAbove;
 			boost::unordered_map<size_t, size_t> cBelow;
+
+
+
 			for(size_t i=0; i<n-1; i++){//go through all possible splits
 				//Update the count classes of both splits after element i moved to the left split
 				unsigned int label = dataset.element(table[i].id).label;
@@ -495,21 +505,50 @@ double CARTTrainer::gini(boost::unordered_map<size_t, size_t>& countMatrix, size
  * [attribute | class/value | rid ]
  */
 CARTTrainer::AttributeTables CARTTrainer::createAttributeTables(Data<RealVector> const& dataset){
-	std::size_t numElements = dataset.numberOfElements();
-	std::size_t inputDimension = dataDimension(dataset);
-	//for each input dimension an attribute table is created and stored in tables
-	AttributeTables tables(inputDimension, AttributeTable(numElements));
-	//For each column
-	for(size_t j=0; j<inputDimension; j++){
-		//For each row
-		for(size_t i=0; i<numElements; i++){
-			//Store Attribute value, class and element id
-			tables[j][i].value = dataset.element(i)[j];
-			tables[j][i].id = i;
-		}
-		std::sort(tables[j].begin(), tables[j].end());
-	}
-	return tables;
+    std::size_t numElements = dataset.numberOfElements();
+    std::size_t inputDimension = dataDimension(dataset);
+    //for each input dimension an attribute table is created and stored in tables
+    AttributeTables tables(inputDimension, AttributeTable(numElements));
+    //For each column
+    for(size_t j=0; j<inputDimension; j++){
+        //For each row
+        for(size_t i=0; i<numElements; i++){
+            //Store Attribute value, class and element id
+            tables[j][i].value = dataset.element(i)[j];
+            tables[j][i].id = i;
+        }
+        std::sort(tables[j].begin(), tables[j].end());
+    }
+    return tables;
+}
+
+/**
+ * Creates the attribute splits tables. This table is used for ordered values where the number of used values is small compared to the size of the dataset.
+ * A dataset consisting of m input variables has m attribute tables.
+ * [attribute | class/value | rid ]
+ */
+CARTTrainer::AttributeSplits CARTTrainer::createAttributeSplits(Data<RealVector> const& dataset){
+    std::size_t numElements = dataset.numberOfElements();
+    std::size_t inputDimension = dataDimension(dataset);
+    //for each input dimension an attribute table is created and stored in tables
+    AttributeSplits splits(inputDimension);
+    //For each row
+    for(size_t i=0; i<numElements; i++){
+        //For each column
+        for(size_t j=0; j<inputDimension; j++){
+            //Store Attribute value, class and element id
+            splits[j].count[dataset.element(i)[j]]++;
+        }
+    }
+
+    for(size_t j=0; j<inputDimension; j++){
+        printf("\nSplits found for variable %d\n", j);
+        for (std::map<double, unsigned long>::iterator it = splits[j].count.begin(); it != splits[j].count.end(); it++) {
+            printf("%f-%d\t", it->first, it->second);
+        }
+    }
+
+    return splits;
 }
 
 boost::unordered_map<size_t, size_t> CARTTrainer::createCountMatrix(ClassificationDataset const& dataset){
@@ -518,6 +557,41 @@ boost::unordered_map<size_t, size_t> CARTTrainer::createCountMatrix(Classificati
 		cAbove[dataset.element(i).label]++;
 	}
 	return cAbove;
+}
+
+
+/* this function joins createCountMatrix and createAttributeTables to avoid multiple runs through the dataset */
+void CARTTrainer::initializeStructuresClassification(boost::unordered_map<size_t, size_t> &cAbove, AttributeTables &tables, AttributeSplits &splits, ClassificationDataset const& dataset) {
+    Data<RealVector> const& data = dataset.inputs();
+    std::size_t numElements = dataset.numberOfElements();
+    std::size_t inputDimension = dataDimension(data);
+
+    for(size_t i=0; i<numElements; i++){
+        if (i % 1000 == 0) printf("element %d\n", i);
+        /* fill cAbove */
+        cAbove[dataset.element(i).label]++;
+
+        /* fill tables and splits */
+        for (size_t j = 0; j < inputDimension; j++) {
+            tables[j][i].value = data.element(i)[j];
+            tables[j][i].id = i;
+
+            splits[j].count[data.element(i)[j]]++;
+        }
+    }
+
+    /* sort attribute table for each attribute */
+    for (size_t j = 0; j < inputDimension; j++) {
+        std::sort(tables[j].begin(), tables[j].end());
+    }
+
+    for(size_t j=0; j<inputDimension; j++){
+        printf("\nSplits found for variable %d\n", j);
+        for (std::map<double, unsigned long>::iterator it = splits[j].count.begin(); it != splits[j].count.end(); it++) {
+            printf("%f-%d\t", it->first, it->second);
+        }
+    }
+
 }
 
 
