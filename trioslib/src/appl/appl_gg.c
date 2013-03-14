@@ -23,8 +23,8 @@ img_t *lapplyGG_memory(img_t *input, dTree *tree, window_t *win, img_t *mask) {
     sprintf(temp, "%d.pgm", time(NULL));
     img_writePGM(temp, mask);
 #endif
-    res = apply_cv_tree(input, tree, win, mask);
-    //res = apply_shark_tree(tree, win, input, mask);
+    //res = apply_cv_tree(input, tree, win, mask);
+    res = apply_shark_tree(tree, win, input, mask);
     if (mask_c) {
         img_free(mask);
     }

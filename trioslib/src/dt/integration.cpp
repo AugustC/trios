@@ -1,10 +1,11 @@
 #include <shark/Algorithms/Trainers/CARTTrainer.h>
+#include <shark/Data/Csv.h>
 
 #include <vector>
 #include "trios.h"
 
 extern "C" dTree *build_shark_tree(mtm_t *mtm) {
-    int i, j, k, sz, s, nshifts;
+    int i, j, k, sz;
     mtm_GX *mt;
     std::vector<shark::RealVector> wpats;
     std::vector<unsigned int> labels;
@@ -15,8 +16,6 @@ extern "C" dTree *build_shark_tree(mtm_t *mtm) {
         for (k = 0; k < mt->fq; k++) {
             shark::RealVector rv(sz);
             for(j=0; j < sz; j++) {
-                s = j/NB ;
-                nshifts = j%NB ;
                 rv[j] = (float) ((unsigned char) mt->wpat[j]);
             }
             labels.push_back(mt->label);
@@ -24,7 +23,10 @@ extern "C" dTree *build_shark_tree(mtm_t *mtm) {
         }
     }
 
+    printf("mtm sum %d\n", mtm->nsum);
+
     shark::LabeledData<shark::RealVector, unsigned int> training(wpats, labels, shark::ClassificationDataset::DefaultBatchSize);
+    export_csv(training, "mtm.csv", shark::LAST_COLUMN);
     shark::CARTClassifier<shark::RealVector> *tree;
     tree = new shark::CARTClassifier<shark::RealVector>();
 
@@ -38,7 +40,6 @@ extern "C" img_t *apply_shark_tree(dTree *tree__, window_t *win, img_t *input, i
     int i, j, k, l, m, w, h, sz, *offset, label;
     double prob;
     img_t *output;
-    printf("SDFSD\n\n");
     shark::CARTClassifier<shark::RealVector> *tree = (shark::CARTClassifier<shark::RealVector> *) tree__;
     w = input->width;
     h = input->height;
@@ -69,7 +70,6 @@ extern "C" img_t *apply_shark_tree(dTree *tree__, window_t *win, img_t *input, i
             std::cout << prediction << std::endl;
             img_set_pixel(output, i, j, 0, label);
         }
-
     }
     return output;
 }

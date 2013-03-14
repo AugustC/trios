@@ -81,6 +81,12 @@ public:
 protected:
 
     ///Types frequently used
+
+    enum AttributeType {
+        real,
+        ordered
+    };
+
     struct TableEntry{
     	double value;
     	std::size_t id;
@@ -92,6 +98,18 @@ protected:
     typedef std::vector < TableEntry > AttributeTable;
     typedef std::vector < AttributeTable > AttributeTables;
     
+    struct AttributeSplitData {
+        unsigned long count;
+        std::map <double, unsigned long> labels;
+    };
+
+    struct AttributeSplit {
+        AttributeType type;
+        std::map<double, unsigned long> count;
+    };
+    typedef std::vector< AttributeSplit > AttributeSplits;
+
+
     typedef ModelType::SplitMatrixType SplitMatrixType;
     
 
@@ -140,8 +158,14 @@ protected:
     ///Attribute table functions
     ///Create the attribute tables used by the SPRINT algorithm
     AttributeTables createAttributeTables(Data<RealVector> const& dataset);
+
+    AttributeSplits createAttributeSplits(Data<RealVector> const& dataset);
+
     ///Splits the attribute tables by a attribute index and value. Returns a left and a right attribute table in the variables LAttributeTables and RAttributeTables
     void splitAttributeTables(const AttributeTables& tables, std::size_t index, std::size_t valIndex, AttributeTables& LAttributeTables, AttributeTables& RAttributeTables);
+
+    void initializeStructuresClassification(boost::unordered_map<size_t, size_t> &cAbove, AttributeTables &tables, AttributeSplits &splits, ClassificationDataset const& dataset);
+
     ///Crates count matrices from a classification dataset
     boost::unordered_map<std::size_t, std::size_t> createCountMatrix(ClassificationDataset const& dataset);
 
