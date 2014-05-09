@@ -21,6 +21,7 @@ typedef struct {
     height, /*!< Height of the image. */
     nbands; /*!< Number of bands of the image. */ 
     int pixel_size; /*!< Number of bytes of a pixel. */
+    int quant; /*!< Number of gray_levels in the image. Default: 256. */
     unsigned char *data; /*!< Pointer to the data of the image. */
 } img_t;
 
@@ -60,7 +61,7 @@ void img_set_pixel(img_t *, int, int, int, unsigned int);
 
 
 /*!
-  Gets the value of the (i, j, k) pixel in the image.
+  Gets the value of the (i, j, k) pixel in the image. 
 
   \param t Image.
   \param i Row of the pixel.
