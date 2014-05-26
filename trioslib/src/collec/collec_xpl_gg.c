@@ -13,10 +13,10 @@
  * \param npixels Number of pixels in the images.
  * \return An example's set on success, NULL on failure.
  */
-xpl_t *collec_GX(unsigned char *p1, unsigned char *p2, unsigned char *p3,
+xpl_t *collec_GX(img_t *input, img_t *output, img_t *mask,
 		 int *offset, int wsize, int npixels, int type)
 {
-	int i, j, k;
+	int i, j, k, l, m, w, h;
 	int *wpat;		/* w-pattern */
 	int st;
 	xpl_t *xpl;		/* XPL structure */
@@ -41,6 +41,22 @@ xpl_t *collec_GX(unsigned char *p1, unsigned char *p2, unsigned char *p3,
 					     "collec_GG: xpl_create() failed.");
 	}
 
+	w = img_get_width(input);
+	h = img_get_height(input);
+	
+	for (i = 0; i < h; i++) {
+		for (j = 0; j < w; j++) {
+			if (img_get_pixel(mask, i, j, 0) == 0) continue;
+			
+			/* blank w-pattern */
+			
+			/* slide window */
+			
+			/* add into the xpl tree. */
+			
+		}
+	}
+	
 	for (j = 0; j < npixels; j++) {	/* shifts the window */
 
 		if (p3[j] != 0) {	/* mask condition satisfied */
@@ -52,8 +68,9 @@ xpl_t *collec_GX(unsigned char *p1, unsigned char *p2, unsigned char *p3,
 
 			for (i = 0; i < wsize; i++) {	/* for each point of the window... */
 				k = j + offset[i];
-				if (k >= 0 && k < npixels && p1[k] != 0)
+				if (k >= 0 && k < npixels && p1[k] != 0) {
 					wpat[i] = p1[k];
+				}
 			}
 
 #ifdef _DEBUG_2_
