@@ -56,6 +56,8 @@ imgset_t *imgset_create(int ngroups, int grpsize)
 		}
 	}
 
+	
+	imgset->quant = 1;
 	imgset->ngroups = ngroups;
 	imgset->grpsize = grpsize;
 

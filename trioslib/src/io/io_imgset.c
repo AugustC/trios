@@ -57,12 +57,15 @@ imgset_t *imgset_read(char *fname)
 	int tags_read, stop;
 
 	FILE *fd;
-	int ngroups, grpsize;
+	int ngroups, grpsize, quant;
 	char name[256];
 	char *dir_name;
 	int k, i;
 	imgset_t *imgset;
 
+	ngroups = grpsize = -1;
+	quant = 1;
+	
 #ifdef _DEBUG_
 	trios_debug("It will read %s", fname);
 #endif
@@ -112,6 +115,12 @@ imgset_t *imgset_read(char *fname)
 			tags_read++;
 			break;
 
+		case 'q':
+			if (1 != fscanf(fd, "%d", &quant)) {
+				fclose(fd);
+				trios_fatal("Unexpected data or end of file");
+			}
+			break;
 		case 'd':
 			stop = 1;
 			break;
@@ -138,6 +147,7 @@ imgset_t *imgset_read(char *fname)
 		return (imgset_t *) trios_error(MSG,
 						"imgset_read: imgset_create() failed.");
 	}
+	imgset->quant = quant;
 
 	for (i = 1; i <= grpsize; i++) {
 		if (fscanf(fd, "%s", name) != 1) {
@@ -199,7 +209,7 @@ int imgset_write(char *fname, imgset_t * imgset)
 
 	fprintf(fd, "%s %d\n", ".n", imgset->ngroups);
 	fprintf(fd, "%s %d\n", ".f", imgset->grpsize);
-
+	fprintf(fd, ".q %d\n", imgset->quant);
 	fprintf(fd, "%s\n", ".d");
 
 	for (i = 1; i <= imgset->grpsize; i++) {

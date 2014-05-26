@@ -20,6 +20,7 @@ img_t *img_create(int w, int h, int n, int sz) {
     t->nbands = n;
     t->pixel_size = sz;
     t->data = malloc(sz * w * h * n);
+    t->quant = 1;
     if (t->data == NULL) {
         return (img_t *) trios_error(1, "Failed malloc for img->data");
     }
@@ -59,7 +60,8 @@ img_t *img_convert_type(img_t *img, int pixel_size) {
 }
 
 /*!
-  Sets the (i, j, k) pixel in the image as v.
+  Sets the (i, j, k) pixel in the image as v. The value v is multiplied by quant to determine
+  the raw value stored in the image.
 
   \param t Image to set the pixel.
   \param i Row of the pixel.
@@ -68,6 +70,29 @@ img_t *img_convert_type(img_t *img, int pixel_size) {
   \param v New value of the pixel.
   */
 void img_set_pixel(img_t *t, int i, int j, int k, unsigned int v) {
+    if (t->pixel_size == sz8BIT) {
+        unsigned char val = (unsigned char) v;
+        t->data[k * t->width * t->height + i * t->width + j] = val * t->quant;
+    } else if (t->pixel_size == sz16BIT) {
+        unsigned short val = (unsigned short) v;
+        unsigned short *data = (unsigned short *) t->data;
+        data[k * t->width * t->height + i * t->width + j] = val * t->quant;
+    } else if (t->pixel_size == sz32BIT) {
+        unsigned int *data = (unsigned int *) t->data;
+        data[k * t->width * t->height + i * t->width + j] = v * t->quant;
+    }
+}
+
+/*!
+  Sets the (i, j, k) pixel in the image as v. This function ignores the quantization value.
+
+  \param t Image to set the pixel.
+  \param i Row of the pixel.
+  \param j Column of the pixel.
+  \param k Band of the pixel.
+  \param v New value of the pixel.
+  */
+void img_set_pixel_raw(img_t *t, int i, int j, int k, unsigned int v) {
     if (t->pixel_size == sz8BIT) {
         unsigned char val = (unsigned char) v;
         t->data[k * t->width * t->height + i * t->width + j] = val;
@@ -82,7 +107,7 @@ void img_set_pixel(img_t *t, int i, int j, int k, unsigned int v) {
 }
 
 /*!
-  Gets the value of the (i, j, k) pixel in the image.
+  Gets the quantized value of the (i, j, k) pixel in the image. 
 
   \param t Image.
   \param i Row of the pixel.
@@ -90,6 +115,27 @@ void img_set_pixel(img_t *t, int i, int j, int k, unsigned int v) {
   \param k Band of the pixel.
   */
 unsigned int img_get_pixel(img_t *t, int i, int j, int k) {
+    if (t->pixel_size == sz8BIT) {
+        return t->data[k * t->width * t->height + i * t->width + j] / t->quant;
+    } else if (t->pixel_size == sz16BIT) {
+        unsigned short *data = (unsigned short *) t->data;
+        return data[k * t->width * t->height + i * t->width + j] / t->quant;
+    } else if (t->pixel_size == sz32BIT) {
+        unsigned int *data = (unsigned int *) t->data;
+        return data[k * t->width * t->height + i * t->width + j] / t->quant;
+    }
+    return t->data[t->pixel_size * (k * t->width * t->height + i * t->width + j)] / t->quant;
+}
+
+/*!
+  Gets the raw value of the (i, j, k) pixel in the image.
+
+  \param t Image.
+  \param i Row of the pixel.
+  \param j Column of the pixel.
+  \param k Band of the pixel.
+  */
+unsigned int img_get_pixel_raw(img_t *t, int i, int j, int k) {
     if (t->pixel_size == sz8BIT) {
         return t->data[k * t->width * t->height + i * t->width + j];
     } else if (t->pixel_size == sz16BIT) {

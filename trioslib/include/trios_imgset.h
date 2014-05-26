@@ -18,6 +18,7 @@ typedef struct {
   int  grpsize ;       /*!< Number of images in each group */
   char **dir ;         /*!< Directory name (path)          */
   char ***file ;       /*!< File names                     */
+  int quant;           /*!< Quantization factor of the image. Default: 1  */
 } imgset_t ;
 
 /*!
