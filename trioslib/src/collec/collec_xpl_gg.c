@@ -18,7 +18,8 @@ xpl_t *collec_GX(img_t *input, img_t *output, img_t *mask,
 {
 	int i, j, k, l, m, w, h;
 	int *wpat;		/* w-pattern */
-	int st;
+	int st, y_off, x_off;
+	unsigned int val;
 	xpl_t *xpl;		/* XPL structure */
 	freq_node *freqnode;	/* pointer to a frequency node */
 #ifdef _DEBUG_
@@ -49,53 +50,27 @@ xpl_t *collec_GX(img_t *input, img_t *output, img_t *mask,
 			if (img_get_pixel(mask, i, j, 0) == 0) continue;
 			
 			/* blank w-pattern */
+			for (k = 0; k < xpl->wsize; k++) {
+				wpat[k] = 0;
+			}
 			
 			/* slide window */
+			for (k = 0; k < wsize; k++) {
+				y_off = offset[k] / w;
+				x_off = offset[k] - offset[k] / w * w;
+				
+				wpat[k] = (int) img_get_pixel(input, i + y_off, j + x_off, 0);
+			}
 			
 			/* add into the xpl tree. */
-			
-		}
-	}
-	
-	for (j = 0; j < npixels; j++) {	/* shifts the window */
-
-		if (p3[j] != 0) {	/* mask condition satisfied */
-
-			for (i = 0; i < xpl->wsize; i++)
-				wpat[i] = 0;	/* blank w-pattern */
-
-			/* gets the w-pattern centered at the point j */
-
-			for (i = 0; i < wsize; i++) {	/* for each point of the window... */
-				k = j + offset[i];
-				if (k >= 0 && k < npixels && p1[k] != 0) {
-					wpat[i] = p1[k];
-				}
-			}
-
-#ifdef _DEBUG_2_
-			trios_debug("Pattern coletado");
-			for (i = 0; i < wsize; i++) {
-				trios_debug("wpat[%d]=%d\n", i, wpat[i]);
-			}
-			trios_debug("p2[%d]=%d\n", j, p2[j]);
-#endif
-
+			val = img_get_pixel(output, i, j, 0);
 			if ((freqnode =
-			     freq_node_create((int)p2[j], 1)) == NULL) {
+			     freq_node_create((int) val, 1)) == NULL) {
 				free(wpat);
 				return (xpl_t *) trios_error(MSG,
 							     "collec_GG: freq_node_create() failed.");
 			}
-
-			/* insert new w-pattern into example's set */
-
-#ifdef _DEBUG_2_
-			trios_debug("freqnode criado");
-			trios_debug("label1=%d , freq1=%d\n", freqnode->label,
-				    freqnode->freq);
-#endif
-
+			
 			st = xpl_GG_insert(xpl, (xpl_GG **) (&xpl->root), wpat,
 					   freqnode);
 
@@ -105,11 +80,10 @@ xpl_t *collec_GX(img_t *input, img_t *output, img_t *mask,
 				return (xpl_t *) trios_error(MSG,
 							     "collec_GG: xpl_GG_insert() failed.");
 			}
-
 		}
-
 	}
-
+	
+	
 	free(wpat);
 	return (xpl);
 
