@@ -53,7 +53,6 @@ int get_setofimages(imgset_t * imgset, int map_type, window_t * win, int k,
 	int i, j;
 	char *filename = imgset_get_ffullname(imgset, 1, k);
 	img_t *img = img_readPGM(filename);
-	img->quant = imgset->quant;
 	free(filename);
 	if (img == NULL) {
 		return 0;
@@ -62,16 +61,18 @@ int get_setofimages(imgset_t * imgset, int map_type, window_t * win, int k,
 		*img1 = img_convert_type(img, sz16BIT);
 		img_free(img);
 	} else {
+		img->quant = imgset->quant;
 		*img1 = img;
 	}
 
 	/* Read second image */
 	filename = imgset_get_ffullname(imgset, 2, k);
 	img = img_readPGM(filename);
-	img->quant = imgset->quant;
 	free(filename);
 	if (img == NULL) {
 		return 0;
+	} else if (map->type != BB) {
+		img->quant = imgset->quant;
 	}
 	*img2 = img;
 	/* If there is a mask, read it */
