@@ -112,6 +112,7 @@ class ImageOperator:
         elif type(imgset) == str:
             imgset = Imageset.read(imgset)
         imgset = save_temporary(imgset)
+        self.quant = imgset.quant
         r = detect.call('trios_build single %s %s %s %s'%(self.type, win, imgset, self.fname))
         os.remove(win)
         os.remove(imgset)

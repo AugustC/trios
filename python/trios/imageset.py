@@ -19,6 +19,12 @@ Every place that expects an Imageset will work with a simple list in the followi
 
 Also, Imageset([['input1', 'ideal1', 'mask1'], ['input2', 'ideal2'], ... ]) converts the list to an Imageset.
     """
+    def __init__(self, *args, **kwargs):
+        super(list, self).__init__(*args)
+        if 'quant' in kwargs:
+            self.quant = int(kwargs['quant'])
+        else:
+            self.quant = 1
     
     @staticmethod
     def __skip_blank(lines, count):
@@ -36,6 +42,13 @@ Also, Imageset([['input1', 'ideal1', 'mask1'], ['input2', 'ideal2'], ... ]) conv
         
         lines = f.readlines()
         
+        line_offset = 0
+        if lines[3].startswith('.q'):
+            imgset.quant = int(lines[3].split()[1])
+            line_offset = 1
+        else:
+            imgset.quant = 1
+        
         n = int(lines[1].split()[1])
         ngroups = int(lines[2].split()[1])
         if ngroups != 2 and ngroups != 3:
@@ -43,13 +56,13 @@ Also, Imageset([['input1', 'ideal1', 'mask1'], ['input2', 'ideal2'], ... ]) conv
             return None
         
         base_dir = [""] * 3
-        base_dir[0] = lines[4].strip()
-        base_dir[1] = lines[5].strip()
+        base_dir[0] = lines[4 + line_offset].strip()
+        base_dir[1] = lines[5 + line_offset].strip()
         
         pref = os.path.dirname(fname)
         
         if ngroups == 3:
-            base_dir[2] = lines[6].strip()
+            base_dir[2] = lines[6 + line_offset].strip()
             
         for i in range(3):
             if (base_dir[i].startswith('./') and 
@@ -60,17 +73,17 @@ Also, Imageset([['input1', 'ideal1', 'mask1'], ['input2', 'ideal2'], ... ]) conv
         for i in range(3):
             base_dir[i] = os.path.join(pref, base_dir[i])
             
-        line_count = 7
+        data_line = 7 + line_offset
         for i in range(n):
-            line_count = cls.__skip_blank(lines, line_count)
-            input_img = base_dir[0] + lines[line_count].strip()
-            ideal_img = base_dir[1] + lines[line_count+1].strip()
+            data_line = cls.__skip_blank(lines, data_line)
+            input_img = base_dir[0] + lines[data_line].strip()
+            ideal_img = base_dir[1] + lines[data_line+1].strip()
             if ngroups == 2:
                 imgset.append( (input_img, ideal_img) )
             else:
-                mask_img = base_dir[2] + lines[line_count+2].strip()
+                mask_img = base_dir[2] + lines[data_line+2].strip()
                 imgset.append( (input_img, ideal_img, mask_img) )
-            line_count += ngroups        
+            data_line += ngroups        
         
         f.close()
         return imgset
@@ -99,6 +112,7 @@ Also, Imageset([['input1', 'ideal1', 'mask1'], ['input2', 'ideal2'], ... ]) conv
         
         f.write('.n %d\n' % n)
         f.write('.f %d\n' % ngroups)
+        f.write('.q %d\n' % self.quant)
         f.write('.d\n' + './\n' * ngroups + '\n')
         
         for example in self:
