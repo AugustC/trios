@@ -32,6 +32,7 @@ typedef struct {
 
     itv_t *bb; /*! < BB operator. NULL if the type is not BB */
     dTree *gg; /*! < GG or WC* operator. NULL if the type is BB. */
+    int quant; /*! < Quantization factor for gray-level operators. */
     apert_t *apt; /*! < Aperture of the operator. NULL if the type is not WC*. */
 } image_operator_t;
 

@@ -71,7 +71,7 @@ int get_setofimages(imgset_t * imgset, int map_type, window_t * win, int k,
 	free(filename);
 	if (img == NULL) {
 		return 0;
-	} else if (map->type != BB) {
+	} else if (map_type != BB && map_type != GB) {
 		img->quant = imgset->quant;
 	}
 	*img2 = img;
@@ -311,7 +311,7 @@ int lcollec_main(imgset_t * imgset, window_t * win, xpl_t * xpl, int map_type,
 			/* read images and convert them to the appropriate format */
 			/* i.e, input is short, output is byte and mask is byte */
 			if (!get_setofimages
-			    (imgset, GG, win, k, &img1, &img2, &img3)) {
+			    (imgset, map_type, win, k, &img1, &img2, &img3)) {
 				trios_error(MSG,
 					    "lcollec_main: get_images() failed.");
 				goto END_lcollec_main;

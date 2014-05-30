@@ -52,6 +52,7 @@ static image_operator_t *build_with_tree(imgset_t * set, window_t * win,
 		     "Failed to alloc image operator");
 	iop->type = type;
 	iop->win = win;
+	iop->quant = set->quant;
 	iop->apt = NULL;
 	iop->bb = NULL;
 

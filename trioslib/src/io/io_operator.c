@@ -110,7 +110,9 @@ int image_operator_write(char *path, image_operator_t * iop)
 	} else if (iop->type == WKF) {
 		fprintf(operator_file, ".t\nWKF\n");
 	}
-
+	if (iop->type != BB) {
+		fprintf(operator_file, ".q\n%d\n", iop->quant);
+	}
 	sprintf(temp_string, "mkdir %s-files", path);
 	system(temp_string);
 
@@ -152,6 +154,7 @@ image_operator_t *image_operator_read(char *path)
 	FILE *f;
 	window_t *win;
 	apert_t *apt;
+	int quant;
 
 	f = fopen(path, "r");
 	if (f == NULL) {
@@ -166,6 +169,7 @@ image_operator_t *image_operator_read(char *path)
 							"Failed to read file %s.",
 							path);
 	}
+	fgetc(f);
 	if (temp_string[0] == 'B' && temp_string[1] == 'B') {
 		iop->type = BB;
 		sprintf(temp_string, "%s-files/window", path);
@@ -214,6 +218,14 @@ image_operator_t *image_operator_read(char *path)
 		} else if (temp_string[1] == 'B') {
 			iop->type = GB;
 		}
+		
+		/* read quant here */
+		if (fscanf(f, ".q\n%d\n", &quant) == 1) {
+			iop->quant = quant;
+		} else {
+			iop->quant = 1;
+		}
+		
 		sprintf(temp_string, "%s-files/window", path);
 		iop->win = win_read(temp_string);
 		if (iop->win == NULL) {
