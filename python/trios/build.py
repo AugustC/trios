@@ -70,7 +70,12 @@ class ImageOperator:
         with open(fname, 'r') as fop:
             lines = fop.readlines()
             tp = lines[1].strip()
-            win = lines[3].strip()
+            if lines[2].startswith('.q'):
+                win = lines[5].strip()
+                quant = int(lines[3].strip())
+            else:
+                quant = 1
+                win = lines[3].strip()
         win = os.path.join(os.path.split(fname)[0], win)
         op = ImageOperator(fname, win, tp)
         op.built = True
@@ -111,8 +116,8 @@ class ImageOperator:
             imgset = Imageset(imgset)
         elif type(imgset) == str:
             imgset = Imageset.read(imgset)
-        imgset = save_temporary(imgset)
         self.quant = imgset.quant
+        imgset = save_temporary(imgset)
         r = detect.call('trios_build single %s %s %s %s'%(self.type, win, imgset, self.fname))
         os.remove(win)
         os.remove(imgset)
@@ -168,6 +173,6 @@ class ImageOperator:
             mae_err = int(content.split()[1])
             acc = float(content.split()[3])            
         os.remove(errname)
-        os.remove(test_set)
+        #os.remove(test_set)
         return mae_err, acc
         
