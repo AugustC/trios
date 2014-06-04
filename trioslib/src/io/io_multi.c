@@ -172,8 +172,9 @@ int multi_level_operator_write(char *filename, multi_level_operator_t * mop)
 	} else if (mop->type == GG) {
 		fprintf(f, "GG\n");
 	} else if (mop->type == GB) {
-                fprintf(f, "GB\n");
-        }
+        fprintf(f, "GB\n");
+    }
+	fprintf(".q %d\n", mop->quant);
 
 	write_multi_architecture_data2(f, filename, mop);
 
@@ -230,7 +231,7 @@ int multi_level_operator_write(char *filename, multi_level_operator_t * mop)
 
 multi_level_operator_t *multi_level_operator_read(char *filename)
 {
-	int i, j, k, type;
+	int i, j, k, type, quant;
 	char temp_name[1024];
 	multi_level_operator_t *mop;
 	multi_architecture_t *arch;
@@ -255,6 +256,10 @@ multi_level_operator_t *multi_level_operator_read(char *filename)
 							      "Unknown operator type: %s.",
 							      temp_name);
 	}
+	
+	if (fscanf(f, ".q %d\n", &quant) != 1) {
+		quant = 1;
+	}
 
 	arch = read_multi_architecture_data(f, filename);
 	if (arch == NULL) {
@@ -262,7 +267,8 @@ multi_level_operator_t *multi_level_operator_read(char *filename)
 		return NULL;
 	}
 	mop = multi_level_operator_create(arch, type);
-
+	mop->quant = quant;
+	
 	for (k = 0; k < mop->nlevels; k++) {
 		for (i = 0; i < mop->levels[k].noperators; i++) {
 			for (j = 0; j < mop->levels[k].ninputs; j++) {

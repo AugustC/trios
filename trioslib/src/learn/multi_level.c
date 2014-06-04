@@ -76,7 +76,7 @@ static int load_image_set(img_t **** __input_images, img_t *** __ideal_images,
 
 	big = biggest_window(march);
 	for (i = 0; i < imgset_get_ngroups(set[n]); i++) {
-		get_setofimages(set[n], BB, big, i + 1, &(input_images[i][0]),
+		get_setofimages(set[n], mop->type, big, i + 1, &(input_images[i][0]),
 				ideal_images + i, mask_images + i);
 	}
 	*__input_images = input_images;
@@ -160,7 +160,7 @@ multi_level_operator_t *multi_level_build_single(multi_architecture_t * m,
 	int i, j, k;
 	char filename[200];
 	multi_level_operator_t *mop = multi_level_operator_create(m, BB);
-
+	mop->quant = set->quant;
 	img_t ***input_images;
 	img_t ***new_input_images;
 	img_t **mask_images;
@@ -293,6 +293,7 @@ multi_level_operator_t *multi_level_combine_operators(image_operator_t ** ops,
 		multi_level_arch_set_window(arch, 1, 0, i, two_level);
 	}
 	mop = multi_level_operator_create(arch, ops[0]->type);
+	mop->quant = ops[0]->quant;
 	for (i = 0; i < nops; i++) {
 		if (mop->type == BB) {
 			mop->levels[0].trained_operator[i] =
@@ -352,7 +353,7 @@ multi_level_operator_t *multi_level_build(multi_architecture_t * m,
 {
 	int i, j, k;
 	multi_level_operator_t *mop = multi_level_operator_create(m, type);
-
+    mop->quant = set[0]->quant;
 	img_t ***input_images;
 	img_t ***new_input_images;
 	img_t **mask_images;
@@ -424,6 +425,7 @@ multi_level_operator_t *multi_level_combine_xpl(image_operator_t ** ops,
 		multi_level_arch_set_window(arch, 1, 0, i, two_level);
 	}
 	mop = multi_level_operator_create(arch, ops[0]->type);
+	mop->quant = ops[0]->quant;
 	for (i = 0; i < nops; i++) {
 		if (mop->type == BB) {
 			mop->levels[0].trained_operator[i] =

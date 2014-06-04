@@ -60,7 +60,8 @@ typedef struct {
  * A multi-level operator that contains "nlevels" levels.
  */
 typedef struct {
-    int type; /*!< Type of the operator: BB or GG. */
+    int type; /*!< Type of the operator: BB, GG or GB. */
+    int quant; /*!< Quantization factor for the operator. Used only in GG and GB operators. */
     int nlevels; /*!< Number of levels of the operator. */
     multi_level_operator_level_t *levels; /*!< Array of operator levels. */
 } multi_level_operator_t;

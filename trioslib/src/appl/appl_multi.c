@@ -130,7 +130,8 @@ img_t *multi_level_apply_level_gx(multi_level_operator_t *mop, int level, int op
 
 img_t *multi_level_apply(multi_level_operator_t *mop, img_t *img, img_t *mask) {
     img_t **input, **next, *result;
-    int i, j, k;
+    int i, j, k, w, h;
+    unsigned int val;
     input = &img;
 
     trios_malloc(next, sizeof(img_t *) * mop->levels[0].noperators, img_t *, "Bad alloc");
@@ -161,5 +162,14 @@ img_t *multi_level_apply(multi_level_operator_t *mop, img_t *img, img_t *mask) {
     }
     result = input[0];
     free(input);
+    h = img_get_height(result);
+    w = img_get_width(result);
+    for (i = 0; i < h; i++) {
+        for (j = 0; j < w; j++) {
+            val = img_get_pixel(result, i, j, 0);
+            img_set_pixel_raw(result, i, j, 0, val * mop->quant);
+        }
+    }
+    result->quant = mop->quant;
     return result;
 }
