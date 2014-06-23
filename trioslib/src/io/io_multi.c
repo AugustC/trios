@@ -174,7 +174,7 @@ int multi_level_operator_write(char *filename, multi_level_operator_t * mop)
 	} else if (mop->type == GB) {
         fprintf(f, "GB\n");
     }
-	fprintf(".q %d\n", mop->quant);
+	fprintf(f, ".q %d\n", mop->quant);
 
 	write_multi_architecture_data2(f, filename, mop);
 
@@ -256,11 +256,11 @@ multi_level_operator_t *multi_level_operator_read(char *filename)
 							      "Unknown operator type: %s.",
 							      temp_name);
 	}
-	
+	fgetc(f);
 	if (fscanf(f, ".q %d\n", &quant) != 1) {
 		quant = 1;
 	}
-
+	
 	arch = read_multi_architecture_data(f, filename);
 	if (arch == NULL) {
 		trios_error(MSG, "Invalid architecture file.");

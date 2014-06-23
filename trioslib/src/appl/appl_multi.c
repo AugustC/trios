@@ -83,14 +83,14 @@ img_t *multi_level_apply_level_gx(multi_level_operator_t *mop, int level, int op
     output = img_create(w, h, 1, img_get_pixel_size(inputs[0]));
     trios_malloc(w_pattern, sizeof(int) * win_size, img_t *, "Bad alloc");
     trios_malloc(offset, sizeof(int) * win_size, img_t *, "Bad alloc");
-
-    /*if (level == 1) {
+    
+    if (level == 1) {
         char fl[200];
         for (i = 0; i < mop->levels[level].ninputs; i++) {
             sprintf(fl, "apply-l%dop%d.pgm", level, i);
             img_writePGM(fl, inputs[i]);
         }
-    }*/
+    }
 
     for (k = 0; k < npixels; k++) {
         if (mask != NULL && img_get_pixel(mask, k / mask->width, k % mask->width, 0) == 0) {
@@ -107,8 +107,10 @@ img_t *multi_level_apply_level_gx(multi_level_operator_t *mop, int level, int op
                 if (l >= 0 && l < npixels) {
                     w_pattern[curr_off] = img_get_pixel(inputs[i], l / inputs[i]->width, l % inputs[i]->width, 0);
                 }
+                printf("%d ", w_pattern[curr_off]);
                 curr_off++;
             }
+            printf("\n");
         }
         /* classify w_pattern */
         int label = lapplyGG_wpat(mop->levels[level].trained_operator[op], w_pattern, win_size);
@@ -132,7 +134,11 @@ img_t *multi_level_apply(multi_level_operator_t *mop, img_t *img, img_t *mask) {
     img_t **input, **next, *result;
     int i, j, k, w, h;
     unsigned int val;
+    int old_quant;
+    old_quant = img->quant;
+    img->quant = mop->quant;
     input = &img;
+    
 
     trios_malloc(next, sizeof(img_t *) * mop->levels[0].noperators, img_t *, "Bad alloc");
     for (i = 0; i < mop->nlevels; i++) {
@@ -162,14 +168,18 @@ img_t *multi_level_apply(multi_level_operator_t *mop, img_t *img, img_t *mask) {
     }
     result = input[0];
     free(input);
-    h = img_get_height(result);
-    w = img_get_width(result);
-    for (i = 0; i < h; i++) {
-        for (j = 0; j < w; j++) {
-            val = img_get_pixel(result, i, j, 0);
-            img_set_pixel_raw(result, i, j, 0, val * mop->quant);
+    if (mop->type == GG) {
+        h = img_get_height(result);
+        w = img_get_width(result);
+        for (i = 0; i < h; i++) {
+            for (j = 0; j < w; j++) {
+                val = img_get_pixel(result, i, j, 0);
+                img_set_pixel_raw(result, i, j, 0, val * mop->quant);
+            }
         }
+        result->quant = mop->quant;
     }
-    result->quant = mop->quant;
+    img->quant = old_quant;
+    
     return result;
 }
