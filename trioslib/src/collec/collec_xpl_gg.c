@@ -14,7 +14,7 @@
  * \return An example's set on success, NULL on failure.
  */
 xpl_t *collec_GX(img_t *input, img_t *output, img_t *mask,
-		 int *offset, int wsize, int npixels, int type)
+		 int *offset, int wsize, int npixels, int type, int q)
 {
 	int i, j, k, l, m, w, h;
 	int *wpat;		/* w-pattern */
@@ -59,11 +59,15 @@ xpl_t *collec_GX(img_t *input, img_t *output, img_t *mask,
 				y_off = offset[k] / w;
 				x_off = offset[k] - offset[k] / w * w;
 				
-				wpat[k] = (int) img_get_pixel(input, i + y_off, j + x_off, 0);
+				wpat[k] = (int) img_get_pixel_quant(input, i + y_off, j + x_off, 0, q);
 			}
 			
 			/* add into the xpl tree. */
-			val = img_get_pixel(output, i, j, 0);
+			if (type == GB) {
+				val = img_get_pixel(output, i, j, 0);
+			} else {
+				val = img_get_pixel_quant(output, i, j, 0, q);
+			}
 			if ((freqnode =
 			     freq_node_create((int) val, 1)) == NULL) {
 				free(wpat);

@@ -208,7 +208,7 @@ int computeMSEGG(dTree * gg_operator, window_t * win, imgset_t * test,
 	n_pixels = 0;
 	for (k = 0; k < n_images; k++) {
 		get_setofimages(test, GG, win, k + 1, &input, &ideal, &mask);
-		result = lapplyGG_memory(input, gg_operator, win, mask);
+		result = lapplyGX_memory(input, gg_operator, GG, 1,	win, mask);
 
 		/* compara result com ideal */
 		for (i = 0; i < img_get_height(input); i++) {

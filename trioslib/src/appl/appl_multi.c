@@ -105,7 +105,11 @@ img_t *multi_level_apply_level_gx(multi_level_operator_t *mop, int level, int op
             for (j = 0; j < win_get_wsize(mop->levels[level].windows[op][i]); j++) {
                 l = k + offset[j];
                 if (l >= 0 && l < npixels) {
-                    w_pattern[curr_off] = img_get_pixel(inputs[i], l / inputs[i]->width, l % inputs[i]->width, 0);
+                    if (mop->type == GG || (mop->type == GB && level == 0)) {
+                        w_pattern[curr_off] = img_get_pixel_quant(inputs[i], l / inputs[i]->width, l % inputs[i]->width, 0, mop->quant);
+                    } else {
+                        w_pattern[curr_off] = img_get_pixel(inputs[i], l / inputs[i]->width, l % inputs[i]->width, 0);
+                    }
                 }
                 printf("%d ", w_pattern[curr_off]);
                 curr_off++;
@@ -135,8 +139,6 @@ img_t *multi_level_apply(multi_level_operator_t *mop, img_t *img, img_t *mask) {
     int i, j, k, w, h;
     unsigned int val;
     int old_quant;
-    old_quant = img->quant;
-    img->quant = mop->quant;
     input = &img;
     
 
@@ -168,7 +170,7 @@ img_t *multi_level_apply(multi_level_operator_t *mop, img_t *img, img_t *mask) {
     }
     result = input[0];
     free(input);
-    if (mop->type == GG) {
+    /*if (mop->type == GG) {
         h = img_get_height(result);
         w = img_get_width(result);
         for (i = 0; i < h; i++) {
@@ -177,9 +179,7 @@ img_t *multi_level_apply(multi_level_operator_t *mop, img_t *img, img_t *mask) {
                 img_set_pixel_raw(result, i, j, 0, val * mop->quant);
             }
         }
-        result->quant = mop->quant;
-    }
-    img->quant = old_quant;
+    }*/
     
     return result;
 }

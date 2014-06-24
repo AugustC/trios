@@ -23,10 +23,9 @@ img_t *image_operator_apply(image_operator_t *iop, img_t *input, img_t *mask) {
             if (iop->gg == NULL || iop->win == NULL) {
                 return (img_t *) trios_error(MSG, "Operator not trained");
             }
-            old_q = input->quant;
-            input->quant = iop->quant;
-            output = lapplyGG_memory(input, iop->gg, iop->win, mask);
-            input->quant = old_q;
+            
+            output = lapplyGX_memory(input, iop->gg, iop->type, iop->quant, iop->win, mask);
+            
             if (iop->type == GB) {
                 h = img_get_height(output);
                 w = img_get_width(output);
@@ -40,17 +39,7 @@ img_t *image_operator_apply(image_operator_t *iop, img_t *input, img_t *mask) {
                         }
                     }
                 }
-            } else {
-                h = img_get_height(output);
-                w = img_get_width(output);
-                for (i = 0; i < h; i++) {
-                    for (j = 0; j < w; j++) {
-                        val = img_get_pixel(output, i, j, 0);
-                        img_set_pixel_raw(output, i, j, 0, val * iop->quant);
-                    }
-                }
-                output->quant = iop->quant;
-            }
+            } 
             break;
         }
         case WKF:

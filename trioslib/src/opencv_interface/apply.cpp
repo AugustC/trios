@@ -27,7 +27,7 @@ int apply_wpat(CvDTree *tr, int *w_pat, int n) {
     return (int) (res->value + 0.5);
 }
 
-img_t *apply(img_t *img, CvDTree *tr, window_t *win, img_t *mask) {
+img_t *apply(img_t *img, CvDTree *tr, int type, int quant, window_t *win, img_t *mask) {
     img_t *output = img_create(img->width, img->height, img->nbands, img->pixel_size);
     cv::Mat wpat(1, win_get_wsize(win), CV_32FC1);
     int *offset = offset_create(win_get_wsize(win));
@@ -44,15 +44,22 @@ img_t *apply(img_t *img, CvDTree *tr, window_t *win, img_t *mask) {
         for (int j = 0; j < win_get_wsize(win); j++) {
             int l = k + offset[j];
             if (l >= 0 && l < n) {
-                wpat.at<float>(0, j) = (int) img_get_pixel(img, l / img->width, l % img->width, 0);
+                wpat.at<float>(0, j) = (int) img_get_pixel_quant(img, l / img->width, l % img->width, 0, quant);
             }
         }
         /* classifica */
 
         CvDTreeNode *node= tr->predict(wpat);
         unsigned int val = (int) (node->value + 0.5);
-        /* coloca na imagem */
-        img_set_pixel(output, k / img->width, k % img->width, 0, val);
+        if (type == GB) {
+            if (val > 127) {
+                img_set_pixel(output, k / img->width, k % img->width, 0, 255);
+            } else {
+                img_set_pixel(output, k / img->width, k % img->width, 0, 0);
+            }
+        } else {
+            img_set_pixel_quant(output, k / img->width, k % img->width, 0, val, quant);
+        }
     }
     free(offset);
     ~wpat;
@@ -115,8 +122,8 @@ img_t *applyWK(img_t *img, CvDTree *tr, window_t *win, apert_t *apt, img_t *mask
 }
 
 
-extern "C" img_t *apply_cv_tree(img_t *input, dTree *tree, window_t *win, img_t *mask) {
-    return apply(input, (CvDTree *)tree, win, mask);
+extern "C" img_t *apply_cv_tree(img_t *input, dTree *tree, int type, int quant, window_t *win, img_t *mask) {
+    return apply(input, (CvDTree *)tree, type, quant, win, mask);
 }
 
 extern "C" img_t *apply_cv_treeWK(img_t *input, dTree *tree, window_t *win, apert_t *apt, img_t *mask) {

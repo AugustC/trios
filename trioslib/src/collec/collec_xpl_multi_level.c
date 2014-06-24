@@ -159,15 +159,15 @@ xpl_t *collec_level_operator_gx_main(multi_level_operator_t * mop, int level,
 		}
 
 		for (i = 0; i < mop->levels[level].ninputs; i++) {
-			offset_set(offset, mop->levels[level].windows[op][i], w,
-				   1);
-			for (j = 0;
-			     j <
-			     win_get_wsize(mop->levels[level].windows[op][i]);
-			     j++) {
+			offset_set(offset, mop->levels[level].windows[op][i], w, 1);
+			for (j = 0; j < win_get_wsize(mop->levels[level].windows[op][i]); j++) {
 				l = offset[j] + k;
-				joint_wpat[win_offset] =
-				    img_get_pixel(inputs[i], l / w, l % w, 0);
+				if (mop->type == GG || (mop->type == GB && level == 0)) {
+					joint_wpat[win_offset] = img_get_pixel_quant(inputs[i], l / w, l % w, 0, mop->quant);
+				} else {
+                    joint_wpat[win_offset] = img_get_pixel(inputs[i], l / w, l % w, 0);
+                }
+				
 				win_offset++;
 			}
 		}

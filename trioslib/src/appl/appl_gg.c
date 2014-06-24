@@ -3,7 +3,7 @@
 
 #include "time.h"
 
-img_t *lapplyGG_memory(img_t *input, dTree *tree, window_t *win, img_t *mask) {  
+img_t *lapplyGX_memory(img_t *input, dTree *tree, int type, int quant, window_t *win, img_t *mask) {  
     int mask_c = 0;
     int i, j;
     img_t *res;
@@ -22,7 +22,7 @@ img_t *lapplyGG_memory(img_t *input, dTree *tree, window_t *win, img_t *mask) {
     sprintf(temp, "%d.pgm", time(NULL));
     img_writePGM(temp, mask);
 #endif
-    res = apply_cv_tree(input, tree, win, mask);
+    res = apply_cv_tree(input, tree, type, quant, win, mask);
     if (mask_c) {
         img_free(mask);
     }

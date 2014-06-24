@@ -5,7 +5,7 @@
 xpl_t *collec_BB(unsigned short *s1, unsigned char *p2, unsigned char *p3,
 		 int *offset, int wsize, int npixels, int cv);
 xpl_t *collec_GX(img_t *input, img_t *output, img_t *mask,
-		 int *offset, int wsize, int npixels, int type);
+		 int *offset, int wsize, int npixels, int type, int q);
 
 void put_border(window_t * win, img_t * img3)
 {
@@ -61,7 +61,6 @@ int get_setofimages(imgset_t * imgset, int map_type, window_t * win, int k,
 		*img1 = img_convert_type(img, sz16BIT);
 		img_free(img);
 	} else {
-		img->quant = imgset->quant;
 		*img1 = img;
 	}
 
@@ -71,9 +70,7 @@ int get_setofimages(imgset_t * imgset, int map_type, window_t * win, int k,
 	free(filename);
 	if (img == NULL) {
 		return 0;
-	} else if (map_type != BB && map_type != GB) {
-		img->quant = imgset->quant;
-	}
+	} 
 	*img2 = img;
 	/* If there is a mask, read it */
 	if (imgset_get_grpsize(imgset) >= 3) {
@@ -325,8 +322,7 @@ int lcollec_main(imgset_t * imgset, window_t * win, xpl_t * xpl, int map_type,
 			c2 = (unsigned char *)img_get_data(img2);
 			c3 = (unsigned char *)img_get_data(img3);
 			xpl_new =
-			    collec_GX(img1, img2, img3, offset, wsize, npixels,
-				      xpl->type);
+			    collec_GX(img1, img2, img3, offset, wsize, npixels, xpl->type, imgset->quant);
 			if (xpl_new == NULL) {
 				trios_error(MSG,
 					    "lcollec_main: collec_GG() failed.");

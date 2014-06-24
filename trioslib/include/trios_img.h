@@ -21,7 +21,6 @@ typedef struct {
     height, /*!< Height of the image. */
     nbands; /*!< Number of bands of the image. */ 
     int pixel_size; /*!< Number of bytes of a pixel. */
-    int quant; /*!< Quantization factor of the image. Default: 1 */
     unsigned char *data; /*!< Pointer to the data of the image. */
 } img_t;
 
@@ -49,19 +48,19 @@ img_t *img_convert_type(img_t *img, int pixel_size);
 
 
 /*!
-  Sets the (i, j, k) pixel in the image as v. This function ignores the quantization value.
+  Sets the (i, j, k) pixel in the image as v. This function applies a quantization factor to set the value.
 
   \param t Image to set the pixel.
   \param i Row of the pixel.
   \param j Column of the pixel.
   \param k Band of the pixel.
   \param v New value of the pixel.
+  \param q Quantization factor.
   */
-void img_set_pixel_raw(img_t *t, int i, int j, int k, unsigned int v);
+void img_set_pixel_quant(img_t *t, int i, int j, int k, unsigned int v, int q);
 
 /*!
-  Sets the (i, j, k) pixel in the image as v. The value v is multiplied by quant to determine
-  the raw value stored in the image.
+  Sets the (i, j, k) pixel in the image as v.
 
   \param t Image to set the pixel.
   \param i Row of the pixel.
@@ -78,8 +77,9 @@ void img_set_pixel(img_t *t, int i, int j, int k, unsigned int v);
   \param i Row of the pixel.
   \param j Column of the pixel.
   \param k Band of the pixel.
+  \param q Quantization factor.
   */
-unsigned int img_get_pixel(img_t *t, int i, int j, int k);
+unsigned int img_get_pixel_quant(img_t *t, int i, int j, int k, int q);
 
 /*!
   Gets the raw value of the (i, j, k) pixel in the image.
@@ -89,7 +89,7 @@ unsigned int img_get_pixel(img_t *t, int i, int j, int k);
   \param j Column of the pixel.
   \param k Band of the pixel.
   */
-unsigned int img_get_pixel_raw(img_t *t, int i, int j, int k);
+unsigned int img_get_pixel(img_t *t, int i, int j, int k);
 
 
 /*!
