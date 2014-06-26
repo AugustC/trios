@@ -174,7 +174,7 @@ xpl_t *collec_level_operator_gx_main(multi_level_operator_t * mop, int level,
 		/* cria freq node */
 		if (type == GG) {
 			freq =
-			    freq_node_create(img_get_pixel(ideal, k / w, k % w, 0), 1);
+			    freq_node_create(img_get_pixel_quant(ideal, k / w, k % w, 0, mop->quant), 1);
 		} else {
 			freq =
 			    freq_node_create((img_get_pixel(ideal, k / w, k % w, 0) != 0) * 255, 1);

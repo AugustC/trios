@@ -116,8 +116,8 @@ img_t *multi_level_apply_level_gx(multi_level_operator_t *mop, int level, int op
         }
         /* classify w_pattern */
         int label = lapplyGG_wpat(mop->levels[level].trained_operator[op], w_pattern, win_size);
-        if (mop->type == GG || (mop->type == GB && level == 0)) {
-            img_set_pixel_quant(output, k / output->width, k % output->width, 0, (unsigned char) label, quant);
+        if (mop->type == GG) {
+            img_set_pixel_quant(output, k / output->width, k % output->width, 0, (unsigned char) label, mop->quant);
         } else if (mop->type == GB) {
             if (label > 127) {
                 img_set_pixel(output, k / output->width, k % output->width, 0, (unsigned char) 255);
