@@ -18,15 +18,22 @@ class TwoLevelOperator(ImageOperator):
         with open(fname, 'r') as f:
             lines = f.readlines()
             tp = lines[0].strip()
-            num_levels = int(lines[1].split()[0])
+            if lines[1].startswith('.q'):
+                quant = int(lines[1].split()[1])
+                num_levels = int(lines[2].split()[0])
+                num_ops = int(lines[3].split()[0])
+            else:
+                quant = 1
+                num_levels = int(lines[1].split()[0])
+                num_ops = int(lines[2].split()[0])
             if num_levels != 2: raise Exception('Only two level operators are supported!')
             ops = []
-            num_ops = int(lines[2].split()[0])
             for i in range(num_ops):
                 op = ImageOperator.read('%s-files/level0/operator%d'%(fname, i))
                 ops.append(op)
             op = TwoLevelOperator(fname, *ops)
             op.built = True
+            op.quant = 1
             return op
     
     def __init__(self, fname, *args):
@@ -41,6 +48,7 @@ class TwoLevelOperator(ImageOperator):
         if isinstance(imgset, list):
             imgset = Imageset(imgset)
         imgset = save_temporary(imgset)
+        self.quant = imgset.quant()
         
         r = detect.call('trios_build combine %s %s %s'%(' '.join([o.fname for o in self.operators]), imgset, self.fname))
         os.remove(imgset)

@@ -79,6 +79,7 @@ class ImageOperator:
         win = os.path.join(os.path.split(fname)[0], win)
         op = ImageOperator(fname, win, tp)
         op.built = True
+        op.quant = quant
         return op
         
     def collec(self, imgset):
