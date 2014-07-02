@@ -229,7 +229,11 @@ int multi_level_operator_write(char *filename, multi_level_operator_t * mop)
 						return trios_error(MSG,
 								   "Failed to open %s.",
 								   temp_name);
-					fprintf(first, ".t\nBB\n");
+					if (mop->type == GG) {
+						fprintf(first, ".t\nGG\n");
+					} else {
+						fprintf(first, ".t\nGB\n");
+					}
 					fprintf(first,
 						".w\noperator%d-files/window\n",
 						i);
