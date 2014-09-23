@@ -49,6 +49,7 @@ def call(cmd, output=os.devnull):
     Calls a command line tool from TRIOS.
     """
     global TRIOS_PATH
+    print cmd
     cmd = shlex.split(cmd)
     cmd[0] = os.path.join(TRIOS_PATH, cmd[0])
     with open(output, 'w') as redir:
