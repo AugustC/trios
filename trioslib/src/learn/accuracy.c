@@ -6,7 +6,7 @@
 unsigned long image_operator_mae(image_operator_t * iop, imgset_t * test,
 				 double *acc)
 {
-	int i, j, k;
+	int i, j, k, count;
 	int n_images;
 	unsigned long total_MAE = 0, *mae_images, *n_pixels, pixels_total;
 
@@ -19,7 +19,7 @@ unsigned long image_operator_mae(image_operator_t * iop, imgset_t * test,
 		     unsigned long, "Error allocating mae_images");
 	trios_malloc(n_pixels, sizeof(unsigned long) * n_images, unsigned long,
 		     "Error allocating n_pixels");
-
+	count = 0;
 #pragma omp parallel for shared(mae_images, n_pixels) private(k, input, ideal, mask, result, i, j)
 	for (k = 0; k < n_images; k++) {
 		if (iop->type == BB) {
@@ -47,6 +47,13 @@ unsigned long image_operator_mae(image_operator_t * iop, imgset_t * test,
 		img_free(ideal);
 		img_free(mask);
 		img_free(result);
+		
+		#pragma omp critical
+		{
+			count++;
+			printf("Progress: %d/%d\n", count, n_images);
+		}
+
 	}
 
 	/* sums all mae_images into MAE and n_pixels into pixels_total */
