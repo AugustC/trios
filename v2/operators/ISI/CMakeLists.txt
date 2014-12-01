@@ -1,0 +1,1 @@
+add_library(trios_ISI isi.c)

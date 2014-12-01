@@ -22,20 +22,23 @@ imgset_t *imgset_create(int ngroups, int grpsize)
 
     imgset = (imgset_t *) malloc(sizeof(imgset_t));
     if (imgset == NULL) {
-        return (imgset_t *) trios_error(1, "Memory allocation failed.");
+        trios_error(1, "Memory allocation failed.");
+        return NULL; 
     }
 
     imgset->dir = (char **) malloc(sizeof(char *) * grpsize);
     if (imgset->dir == NULL) {
         free(imgset);
-        return (imgset_t *) trios_error(1, "Memory allocation failed.");
+        trios_error(1, "Memory allocation failed.");
+        return NULL;
     }
 
     imgset->file = (char ***) malloc(sizeof(char **) * ngroups);
     if (imgset->file == NULL) {
         free(imgset->dir);
         free(imgset);
-        return (imgset_t *) trios_error(1, "Memory allocation failed.");
+        trios_error(1, "Memory allocation failed.");
+        return NULL;
     }
 
     for (k = 0; k < ngroups; k++) {
@@ -44,8 +47,8 @@ imgset_t *imgset_create(int ngroups, int grpsize)
             free(imgset->dir);
             free(imgset->file);
             free(imgset);
-            return (imgset_t *) trios_error(1,
-                                            "Memory allocation failed.");
+            trios_error(1, "Memory allocation failed.");
+            return NULL;
         }
     }
 
@@ -188,18 +191,20 @@ int imgset_set_fname(imgset_t * imgset, int i, int k, char *fname)
 #endif
 
     if (k > imgset_get_ngroups(imgset)) {
-        return trios_error(1, "Images set do not contain %d-th group.", k);
+        trios_error(1, "Images set do not contain %d-th group.", k);
+        return 0;
     }
     if (i > imgset_get_grpsize(imgset)) {
-        return trios_error(1,
-                           "Image group doesn't contain %d-th element", i);
+        trios_error(1, "Image group doesn't contain %d-th element", i);
+        return 0;
     }
 
     if (fname != NULL) {
         f = imgset->file[k - 1];
         f[i - 1] = (char *) malloc(sizeof(char) * (strlen(fname) + 1));
         if (!f[i - 1]) {
-            return trios_error(1, "Memory allocation failed.");
+            trios_error(1, "Memory allocation failed.");
+            return 0;
         }
         strcpy(f[i - 1], fname);
     }
@@ -254,10 +259,8 @@ int imgset_set_dname(imgset_t * imgset, int i, char *dir)
 #endif
 
     if (i > imgset_get_grpsize(imgset)) {
-        (void) trios_error(1,
-                           "Image group doesn't contain %d-th element\n",
-                           i);
-        return (0);
+        trios_error(1, "Image group doesn't contain %d-th element\n", i);
+        return 0;
     }
 
     if (dir != NULL) {
@@ -265,7 +268,8 @@ int imgset_set_dname(imgset_t * imgset, int i, char *dir)
         imgset->dir[i - 1] =
             (char *) malloc(sizeof(char) * (strlen(dir) + 1));
         if (!imgset->dir[i - 1]) {
-            return trios_error(1, "Memory allocation failed.");
+            trios_error(1, "Memory allocation failed.");
+            return 0;
         }
         strcpy(imgset->dir[i - 1], dir);
     }

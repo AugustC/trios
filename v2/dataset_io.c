@@ -193,7 +193,8 @@ int imgset_write(char *fname, imgset_t * imgset)
     char *name;
 
     if (!(fd = fopen(fname, "w"))) {
-        return trios_error(1, "File (%s) open failed.", fname);
+        trios_error(1, "File (%s) open failed.", fname);
+        return 0;
     }
 
     header_write(fd, &header);
@@ -265,8 +266,8 @@ imgset_create_write(char *fname, char *fname_obs, char *fname_ide,
         groupsize = 2;
 
     if (!(imgset = (imgset_t *) imgset_create(ngroups, groupsize))) {
-        return trios_error(MSG,
-                           "imgset_create_write: imgset_create() failed");
+        trios_error(MSG, "imgset_create_write: imgset_create() failed");
+        return 0;
     }
 
     /* set observed image */
@@ -283,13 +284,13 @@ imgset_create_write(char *fname, char *fname_obs, char *fname_ide,
 
     if (!imgset_set_dname(imgset, 1, dir)) {
         imgset_free(imgset);
-        return trios_error(MSG,
-                           "imgset_create_write: imgset_create() failed");
+        trios_error(MSG, "imgset_create_write: imgset_create() failed");
+        return 0;
     }
     if (!imgset_set_fname(imgset, 1, 1, fil)) {
         imgset_free(imgset);
-        return trios_error(MSG,
-                           "imgset_create_write: imgset_create() failed");
+        trios_error(MSG, "imgset_create_write: imgset_create() failed");
+        return 0;
     }
 
     /* set ideal image */
@@ -306,13 +307,13 @@ imgset_create_write(char *fname, char *fname_obs, char *fname_ide,
 
     if (!imgset_set_dname(imgset, 2, dir)) {
         imgset_free(imgset);
-        return trios_error(MSG,
-                           "imgset_create_write: imgset_create() failed");
+        trios_error(MSG, "imgset_create_write: imgset_create() failed");
+        return 0;
     }
     if (!imgset_set_fname(imgset, 2, 1, fil)) {
         imgset_free(imgset);
-        return trios_error(MSG,
-                           "imgset_create_write: imgset_create() failed");
+        trios_error(MSG, "imgset_create_write: imgset_create() failed");
+        return 0;
     }
 
     if (groupsize == 3) {
@@ -330,21 +331,21 @@ imgset_create_write(char *fname, char *fname_obs, char *fname_ide,
 
         if (!imgset_set_dname(imgset, 3, dir)) {
             imgset_free(imgset);
-            return trios_error(MSG,
-                               "imgset_create_write: imgset_create() failed");
+            trios_error(MSG, "imgset_create_write: imgset_create() failed");
+            return 0;
         }
         if (!imgset_set_fname(imgset, 3, 1, fil)) {
             imgset_free(imgset);
-            return trios_error(MSG,
-                               "imgset_create_write: imgset_create() failed");
+            trios_error(MSG, "imgset_create_write: imgset_create() failed");
+            return 0;
         }
     }
 
     /* write imgset */
     if (!imgset_write(fname, imgset)) {
         imgset_free(imgset);
-        return trios_error(MSG,
-                           "imgset_create_write: imgset_write() failed");
+        trios_error(MSG, "imgset_create_write: imgset_write() failed");
+        return 0;
     }
 
     imgset_free(imgset);

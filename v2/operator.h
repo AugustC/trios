@@ -5,37 +5,43 @@
 extern "C" {
 #endif
 
+#include "img.h"
+#include "dataset.h"
+#include "window.h"
 
-typedef struct {
-	operator_type *type;
-	window_t *win;
-	
-	void *params;
-} image_operator_t;
+struct _image_operator {
+    struct _operator_type *type;
+    window_t *win;
+    
+    void *params;
+};
 
-typedef struct {
-	int type;
-	
-	operator_t *(*train)(xpl_t *data, window_t *win, void *operator_params);
-	int (*apply)(int *); /* aplica para um ponto */
-	int (*free)();
-	
-	int (*write)(char *filename);
-	image_operator_t *(*read)(char *filename);
+typedef struct image_operator image_operator_t;
 
-} operator_type;
+struct _operator_type {
+    int type;
+    
+    /*image_operator_t *(*train)(xpl_t *data, window_t *win, void *operator_params);*/
+    int (*apply)(int *); /* aplica para um ponto */
+    int (*free)();
+    
+    int (*write)(char *filename);
+    image_operator_t *(*read)(char *filename);
 
+};
+
+typedef struct _operator_type operator_type;
 
 typedef struct operator_registry_ {
-	operator_type op_type;
-	struct operator_registry_ *next;
+    operator_type *op_type;
+    struct operator_registry_ *next;
 } operator_registry;
 
 extern operator_registry *reg;
 
 void register_operator_type(operator_type *op_type);
 
-void get_operator_type(int type);
+operator_type *get_operator_type(int type);
 
 image_operator_t *image_operator_build(int type, imgset_t *dataset, window_t *win, void *params);
 
