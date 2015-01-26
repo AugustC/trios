@@ -20,7 +20,7 @@ Every place that expects an Imageset will work with a simple list in the followi
 Also, Imageset([['input1', 'ideal1', 'mask1'], ['input2', 'ideal2'], ... ]) converts the list to an Imageset.
     """
     def __init__(self, *args, **kwargs):
-        super(list, self).__init__(*args)
+        super(Imageset, self).__init__(*args)
         if 'quant' in kwargs:
             self.quant = int(kwargs['quant'])
         else:
