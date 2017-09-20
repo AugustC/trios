@@ -12,4 +12,4 @@ $ pip install trios
 ```
 
 ## Getting started
-This [notebook](/cnn_trioslib.ipynb/) shows an example on how to use image operator learning for text segmentation.
+This [notebook](./cnn_trioslib.ipynb) shows an example on how to use image operator learning for text segmentation.
