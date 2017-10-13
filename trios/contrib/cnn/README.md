@@ -2,6 +2,13 @@
  
 This repo integrates CNNs, through TensorFlow, into the TRIOSlib library. Applications of the library include text segmentation, staff-line removal in music scores and image binarization.
 
+Staff-line removal example: input (left) and expected output (right) images
+
+<p align="center">
+  <img src="images/input.jpg" width="250"/>
+  <img src="images/output.jpg" width="250"/>
+</p>
+
 
 ## Installation
 Look at https://www.tensorflow.org/install/ for instructions on how to install TensorFlow. 
