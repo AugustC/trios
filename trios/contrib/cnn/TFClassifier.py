@@ -1,8 +1,7 @@
 import numpy as np
-from trios.WOperator import Classifier
+from trios.classifiers.base_classifier import Classifier
 from sklearn.model_selection import train_test_split
 import trios.util
-
 
 
 class TFClassifier(Classifier):
